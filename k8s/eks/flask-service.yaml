@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-todo-service
+  namespace: flask-todo
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+spec:
+  selector:
+    app: flask-todo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
