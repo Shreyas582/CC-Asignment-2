@@ -1,0 +1,41 @@
+namespaceOverride: monitoring
+
+defaultRules:
+  create: false
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    secrets:
+      - alertmanager-slack-webhook
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: slack-notifications
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30s
+    receivers:
+      - name: "null"
+      - name: slack-notifications
+        slack_configs:
+          - send_resolved: true
+            api_url_file: /etc/alertmanager/secrets/alertmanager-slack-webhook/url
+            title: '[{{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+            text: '{{ range .Alerts }}*Summary:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Namespace:* {{ .Labels.namespace }}\n*Pod:* {{ .Labels.pod }}{{ end }}'
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    evaluationInterval: 15s
+    scrapeInterval: 15s
+
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+grafana:
+  enabled: false

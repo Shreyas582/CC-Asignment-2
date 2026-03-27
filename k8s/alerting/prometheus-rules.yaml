@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: flask-todo-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: flask-todo-health.rules
+      rules:
+        - alert: FlaskTodoPodRestartsHigh
+          expr: increase(kube_pod_container_status_restarts_total{namespace="flask-todo",container="flask-todo"}[2m]) >= 1
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: Flask pod restarted
+            description: Flask container restarted at least once in the last 2 minutes.
+        - alert: FlaskTodoUnavailableReplicas
+          expr: kube_deployment_status_replicas_unavailable{namespace="flask-todo",deployment="flask-todo"} > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: Flask deployment has unavailable replicas
+            description: One or more Flask replicas are unavailable.
