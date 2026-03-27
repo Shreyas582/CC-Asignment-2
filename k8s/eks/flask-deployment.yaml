@@ -20,10 +20,26 @@ spec:
     spec:
       containers:
         - name: flask-todo
-          image: shreyassan/flask-todo:v2
+          image: shreyassan/flask-todo:v3
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
           env:
             - name: MONGO_HOST
               value: mongo

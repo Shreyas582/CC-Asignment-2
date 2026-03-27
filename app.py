@@ -15,6 +15,9 @@ title = "TODO with Flask"
 heading = "ToDo Reminder"
 #modify=ObjectId()
 
+HEALTH_FAIL_FILE = "/tmp/fail-health"
+READY_FAIL_FILE = "/tmp/fail-ready"
+
 def redirect_url():
 	return request.args.get('next') or \
 		request.referrer or \
@@ -119,6 +122,28 @@ def search():
 @app.route("/about")
 def about():
 	return render_template('credits.html',t=title,h=heading)
+
+@app.route("/version")
+def version():
+	# Used to verify which container version is serving traffic after a rollout.
+	return os.environ.get('APP_VERSION', 'v1')
+
+@app.route("/health")
+def health():
+	# File-based switch lets us intentionally fail health checks for testing.
+	if os.path.exists(HEALTH_FAIL_FILE):
+		return "unhealthy", 500
+	return "ok", 200
+
+@app.route("/ready")
+def ready():
+	if os.path.exists(READY_FAIL_FILE):
+		return "not ready", 503
+	try:
+		client.admin.command("ping")
+		return "ready", 200
+	except Exception:
+		return "not ready", 503
 
 if __name__ == "__main__":
 	env = os.environ.get('FLASK_ENV', 'development')
