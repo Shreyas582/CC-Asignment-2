@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-todo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-todo
+  template:
+    metadata:
+      labels:
+        app: flask-todo
+    spec:
+      containers:
+        - name: flask-todo
+          image: shreyassan/flask-todo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MONGO_HOST
+              value: mongo
+            - name: MONGO_PORT
+              value: "27017"
+            - name: FLASK_ENV
+              value: production
+            - name: PORT
+              value: "5000"
