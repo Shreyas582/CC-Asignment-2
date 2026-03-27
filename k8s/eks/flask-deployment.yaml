@@ -5,6 +5,11 @@ metadata:
   namespace: flask-todo
 spec:
   replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       app: flask-todo
@@ -15,7 +20,7 @@ spec:
     spec:
       containers:
         - name: flask-todo
-          image: shreyassan/flask-todo:latest
+          image: shreyassan/flask-todo:v2
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
